@@ -1,9 +1,10 @@
 /**
- * Service Worker - ครูพร้อมสอน Admin PWA (v1.4.0)
- * - App shell (HTML/ไอคอน/manifest): Cache-First
+ * Service Worker - ครูพร้อมสอน Admin PWA (v1.5.0)
+ * - หน้า HTML: เปิดจากแคชทันที แล้วอัปเดตเบื้องหลัง (stale-while-revalidate) — เปิดแอปเร็ว ไม่รอเน็ต
+ * - ไอคอน/ฟอนต์: Cache-First · manifest: Network-First
  * - การเรียก Apps Script: Network-only (ข้อมูลสดเสมอ)
  */
-const CACHE_VERSION = 'krupromsorn-v1.4.0';   // v1.4.0: manifest เปลี่ยนเป็น network-first แก้ปัญหา start_url ค้างแคช
+const CACHE_VERSION = 'krupromsorn-v1.5.0';   // v1.5.0: HTML แบบ stale-while-revalidate (เปิดเร็ว) · แจ้งหน้าเว็บเมื่อมีเวอร์ชันใหม่
 const CACHE_NAME = `${CACHE_VERSION}-cache`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -46,11 +47,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // หน้า HTML ใช้ network-first เสมอ → อัปเดตเวอร์ชันใหม่แล้วเห็นทันที (ออฟไลน์ค่อยใช้ cache)
+  // หน้า HTML: เปิดจากแคชทันที (เร็ว) แล้วโหลดฉบับใหม่เก็บไว้เบื้องหลัง → ปิด-เปิดแอปอีกครั้งเห็นเวอร์ชันใหม่
   if (request.mode === 'navigate' ||
       request.destination === 'document' ||
       url.pathname.endsWith('.html')) {
-    event.respondWith(networkFirst(request));
+    event.respondWith(staleWhileRevalidate(event, request));
     return;
   }
   if (request.destination === 'image' ||
@@ -63,6 +64,18 @@ self.addEventListener('fetch', (event) => {
   // .json (โดยเฉพาะ manifest.json) ใช้ network-first — กัน start_url เก่าค้างแคชตอนติดตั้งแอป
   event.respondWith(networkFirst(request));
 });
+
+async function staleWhileRevalidate(event, request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = (await cache.match(request, { ignoreSearch: true })) || (await caches.match('./index.html'));
+  const update = fetch(request).then(function (response) {
+    if (response && response.ok) cache.put(request, response.clone());
+    return response;
+  }).catch(function () { return null; });
+  if (cached) { event.waitUntil(update); return cached; }   // มีแคช → ตอบทันที
+  const fresh = await update;                                // ครั้งแรกสุด: รอเน็ต
+  return fresh || new Response('ออฟไลน์อยู่ ลองใหม่เมื่อมีสัญญาณนะคะ', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
 
 async function cacheFirst(request) {
   const cached = await caches.match(request);
