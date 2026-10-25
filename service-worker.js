@@ -4,7 +4,7 @@
  * - ไอคอน/ฟอนต์: Cache-First · manifest: Network-First
  * - การเรียก Apps Script: Network-only (ข้อมูลสดเสมอ)
  */
-const CACHE_VERSION = 'krupromsorn-v1.6.1';   // v1.6.1: ไอคอนใหม่ (ครูพร้อม) · v1.6.0: แท็บ 🔎 ลูกค้า (CRM)
+const CACHE_VERSION = 'krupromsorn-v1.6.2';   // v1.6.1: ไอคอนใหม่ (ครูพร้อม) · v1.6.0: แท็บ 🔎 ลูกค้า (CRM)
 // v1.5.0: HTML แบบ stale-while-revalidate (เปิดเร็ว) · แจ้งหน้าเว็บเมื่อมีเวอร์ชันใหม่
 const CACHE_NAME = `${CACHE_VERSION}-cache`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;

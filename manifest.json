@@ -1,13 +1,13 @@
 {
-  "name": "ครูพร้อมสอน Admin",
-  "short_name": "KruPromSorn",
+  "name": "Admin",
+  "short_name": "Admin",
   "description": "ระบบจัดการออเดอร์แผนการสอนสำหรับครูพร้อมสอน",
   "start_url": "/admin/",
   "scope": "/admin/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f5f3ff",
-  "theme_color": "#818cf8",
+  "theme_color": "#08206e",
   "lang": "th",
   "dir": "ltr",
   "categories": [
